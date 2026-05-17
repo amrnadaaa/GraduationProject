@@ -2,6 +2,7 @@ package com.example.Toda.controller;
 
 import com.example.Toda.DTO.*;
 import com.example.Toda.service.TripService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,10 +21,10 @@ public class TripController {
     }
 
     @PostMapping("/create-basic")
-    public ResponseEntity<ApiResponse<String>>createCustomTrip(@RequestBody TripBasicInfoRequest request,@AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<ApiResponse<Integer>>createCustomTrip(@RequestBody TripBasicInfoRequest request,@AuthenticationPrincipal UserDetails userDetails){
 
-        tripService.createCustomTrip(request,userDetails.getUsername());
-        return ResponseEntity.ok().body(ApiResponse.success("Created",null));
+     Integer tripId = tripService.createCustomTrip(request,userDetails.getUsername());
+        return ResponseEntity.ok().body(ApiResponse.success("Created",tripId));
 
 
 
@@ -42,12 +43,21 @@ public class TripController {
         return ResponseEntity.ok().body(ApiResponse.success("Added ",null));
 
     }
-    @PostMapping("/{tripId}/upload-cover")
-    public ResponseEntity<ApiResponse<String>>uploadTripCover(@PathVariable Long tripId,
-                                                              @RequestParam("file") MultipartFile file)
-    {
-        String imageUrl = tripService.saveTripCover(tripId, file);
-        return ResponseEntity.ok(ApiResponse.success("Image uploaded successfully", imageUrl));
+    @PostMapping("/trips/{tripId}/upload-cover")
+    public ResponseEntity<ApiResponse<String>> uploadTripCover(
+            @PathVariable Long tripId,
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        String imageUrl = tripService.uploadTripCover(
+                tripId,
+                userDetails.getUsername(),
+                file
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Image uploaded successfully", imageUrl)
+        );
     }
     @GetMapping("/guideTrips")
     public ResponseEntity<ApiResponse<List<TripCardResponse>>> getGuideTrips(
@@ -58,5 +68,12 @@ public class TripController {
         List<TripCardResponse> trips = tripService.getFilteredTrips(email, statusKey);
         return ResponseEntity.ok(ApiResponse.success("Filtered trips fetched successfully", trips));
     }
+    @GetMapping("/last-created")
+    public ResponseEntity<ApiResponse<TripSuccessResponse>> getLastTrip(
+            @AuthenticationPrincipal UserDetails userDetails,
+            HttpServletRequest request) { // ضيف ده هنا
 
+        TripSuccessResponse data = tripService.getLatestCreatedTrip(userDetails.getUsername(), request);
+        return ResponseEntity.ok(ApiResponse.success("Success screen data fetched", data));
+    }
 }

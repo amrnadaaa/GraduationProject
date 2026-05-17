@@ -2,11 +2,13 @@ package com.example.Toda.controller;
 
 import com.example.Toda.DTO.ApiResponse;
 import com.example.Toda.DTO.ChangePasswordRequest;
+import com.example.Toda.DTO.ProfileResponse;
 import com.example.Toda.DTO.updateProfileRequest;
 import com.example.Toda.service.forgetPasswordService;
 import com.example.Toda.service.profileService;
 import com.example.Toda.service.restPasswordService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,9 +40,14 @@ public class profile {
     }
     @DeleteMapping("/delete-account")
     public ResponseEntity<ApiResponse<String>> deleteAccount(@AuthenticationPrincipal UserDetails userDetails) {
-        profileService.softDeleteAccount(userDetails.getUsername());
-        return ResponseEntity.ok(ApiResponse.success("Account deactivated. You have 30 days to recover it.", null));
+        profileService.DeleteAccount(userDetails.getUsername());
+        return ResponseEntity.ok(ApiResponse.success("your Account was deleted", null));
     }
-
+    @GetMapping("/me")
+    public ResponseEntity<ProfileResponse> getMyProfile(
+            @AuthenticationPrincipal UserDetails userDetails,
+            HttpServletRequest request) {
+        return ResponseEntity.ok(profileService.getProfileDataByEmail(userDetails.getUsername(), request));
+    }
 
 }

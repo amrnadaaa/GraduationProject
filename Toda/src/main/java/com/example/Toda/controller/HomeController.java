@@ -2,6 +2,7 @@ package com.example.Toda.controller;
 
 import com.example.Toda.DTO.HomeDashboardResponse;
 import com.example.Toda.service.HomeService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,9 +17,12 @@ public class HomeController {
     private HomeService homeService;
 
     @GetMapping("/dashboard")
-    public ResponseEntity<HomeDashboardResponse> getDashboard(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<HomeDashboardResponse> getDashboard(
+            @AuthenticationPrincipal UserDetails userDetails,
+            HttpServletRequest request) {
 
         String email = userDetails.getUsername();
-        return ResponseEntity.ok(homeService.getDashboardDataByEmail(email));
+
+        return ResponseEntity.ok(homeService.getDashboardDataByEmail(email, request));
     }
 }

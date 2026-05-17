@@ -61,4 +61,13 @@ public class BookingController {
         bookingService.updateStatus(requestId, BookingRequest.RequestStatus.DECLINED, userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success("Trip request declined successfully", null));
     }
+    @GetMapping("/declined")
+    public ResponseEntity<ApiResponse<List<BookingRequestResponse>>> getDeclinedRequests(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        List<BookingRequestResponse> responses = bookingService.getRequestsByStatus(
+                userDetails.getUsername(),
+                BookingRequest.RequestStatus.DECLINED
+        );
+        return ResponseEntity.ok(ApiResponse.success("Declined requests retrieved", responses));
+    }
 }

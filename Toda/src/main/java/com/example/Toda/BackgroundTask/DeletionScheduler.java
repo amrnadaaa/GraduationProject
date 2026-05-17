@@ -21,4 +21,5 @@ public class DeletionScheduler {
         userRepo.deleteByIsDeletedTrueAndDeletionDateBefore(now);
         System.out.println("Cleanup task: Permanent deletion completed at " + now);
     }
+
 }
